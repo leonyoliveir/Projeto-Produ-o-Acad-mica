@@ -35,5 +35,4 @@ public class Professor extends Pesquisador {
 		}
 	}
 	
-	
 }

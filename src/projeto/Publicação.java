@@ -2,7 +2,7 @@ package projeto;
 
 import java.util.ArrayList;
 
-public class Publicação {
+public class Publicação implements Comparable<Publicação> {
 
 	private String titulo;														// Armazena o título da publicação
 	private String conferencia;													// Armazena a conferência onde ocorreu a publicação
@@ -57,5 +57,12 @@ public class Publicação {
 	
 	public boolean isAutorAdicionado(Pesquisador pesquisador) {
 		return this.autores.contains(pesquisador);
+	}
+
+	@Override
+	public int compareTo(Publicação publicacao) {
+		if (this.anoPublicacao > publicacao.anoPublicacao) return -1;
+		else if (this.anoPublicacao < publicacao.anoPublicacao) return 1;
+		else return 0;
 	}
 }

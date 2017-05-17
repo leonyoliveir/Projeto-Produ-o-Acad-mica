@@ -3,7 +3,6 @@ package projeto;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.Collections;
-import java.util.Date;
 import java.text.SimpleDateFormat;
 
 public class Pesquisador {
@@ -63,14 +62,25 @@ public class Pesquisador {
 		System.out.println("Nome do colaborador: " + this.nome);
 		System.out.println("E-mail do colaborador: " + this.email);
 		System.out.println("Projetos no qual o colaborador está inscrito: ");
-		this.projetos.sort(new DateComparator());
+		Collections.sort(this.projetos);
+		System.out.println("  Concluídos: ");
 		for(Projeto projeto : this.projetos) {
+			if(projeto.getStatus().equals("Concluído"))
+			System.out.println("	Título: "  + projeto.getTitulo());
+			System.out.println("	  Status atual: " + projeto.getStatus());
+			System.out.println("	  Data de início: " + formato.format(projeto.getDataInicio()));
+			System.out.println("	  Data de término: " + formato.format(projeto.getDataTermino()));
+		}
+		System.out.println("  Em andamento: ");
+		for(Projeto projeto : this.projetos) {
+			if(projeto.getStatus().equals("Em Andamento"))
 			System.out.println("	Título: "  + projeto.getTitulo());
 			System.out.println("	  Status atual: " + projeto.getStatus());
 			System.out.println("	  Data de início: " + formato.format(projeto.getDataInicio()));
 			System.out.println("	  Data de término: " + formato.format(projeto.getDataTermino()));
 		}
 		System.out.println("Publicações na qual o colaborador foi autor: ");
+		Collections.sort(this.publicacoes);
 		for(Publicação publicacao : this.publicacoes) {
 			System.out.println("	Título: "  + publicacao.getTitulo());
 			System.out.println("	  Ano de publicação: " + publicacao.getAnoPublicacao());
