@@ -2,6 +2,8 @@ package projeto;
 
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.InputMismatchException;
+import java.lang.IndexOutOfBoundsException;
 
 public class Main {
 
@@ -14,8 +16,13 @@ public class Main {
 		
 		do {
 			menu();
-			opcao = entrada.nextInt();
-			entrada.nextLine();
+			try {
+				opcao = entrada.nextInt();
+				entrada.nextLine();
+			} catch (InputMismatchException e) {
+				System.err.println("Erro: Formato de entrada não é um número inteiro! Finalizando sistema...");
+				opcao = 0;
+			}
 			switch (opcao) {
 			case 1:
 				cadastrar(entrada, pesquisadores);
@@ -70,7 +77,7 @@ public class Main {
 	public static void participantes(ArrayList<Pesquisador> colaboradores){
 		int i = 0;
 		for(Pesquisador print : colaboradores){
-			if(!print.isProfessor()) System.out.println(i + " - " + print.getNome() + "\n");
+			System.out.println(i + " - " + print.getNome() + "\n");
 			i++;
 		}
 	}
@@ -94,66 +101,79 @@ public class Main {
 	public static void cadastrar(Scanner entrada, ArrayList<Pesquisador> colaboradores) {
 		System.out.println("\nPor favor, escolha o tipo de colaborador que deseja adicionar ao sistema\n");
 		System.out.println("1 - Pesquisador\n2 - Graduando\n3 - Mestrando\n4 - Doutorando\n5 - Professor\n");
-		int escolha = entrada.nextInt();
-		entrada.nextLine();
-		Pesquisador novo = null;
 		
-		switch (escolha) {
-		case 1:
-			novo = new Pesquisador();
-			break;
-		case 2:
-			novo = new Graduando();
-			break;
-		case 3:
-			novo = new Mestrando();
-			break;
-		case 4:
-			novo = new Doutorando();
-			break;
-		case 5:
-			novo = new Professor();
-			break;
-		default:
-			System.out.println("\nOpção inválida! Voltando ao menu inicial...\n");
-		} 
-		if(novo != null){
-			novo.addPesquisador(entrada);
-			colaboradores.add(novo);
+		try{
+			int escolha = entrada.nextInt();
+			entrada.nextLine();
+			Pesquisador novo = null;
+			
+			switch (escolha) {
+			case 1:
+				novo = new Pesquisador();
+				break;
+			case 2:
+				novo = new Graduando();
+				break;
+			case 3:
+				novo = new Mestrando();
+				break;
+			case 4:
+				novo = new Doutorando();
+				break;
+			case 5:
+				novo = new Professor();
+				break;
+			default:
+				System.out.println("\nOpção inválida! Voltando ao menu inicial...\n");
+			} 
+			if(novo != null){
+				novo.addPesquisador(entrada);
+				colaboradores.add(novo);
+			}	
+		} catch (InputMismatchException e) {
+			System.err.println("Erro: Entrada não é um número inteiro!");
 		}
 	}
 	
 	public static void adicionar(Scanner entrada, ArrayList<Projeto> projetos, ArrayList<Pesquisador> pesquisadores) {
 		Projeto novo = new Projeto();
-		novo.addProjeto(entrada, pesquisadores);
-		projetos.add(novo);
+		boolean valido = novo.addProjeto(entrada, pesquisadores);
+		if (valido) projetos.add(novo);
 	}
 	
 	public static void alocar(Scanner entrada, ArrayList<Projeto> projetos, ArrayList<Pesquisador> pesquisadores){
 		System.out.println("\nEscolha o projeto ao qual o colaborador será associado:");
 		projetos(projetos);
 		int escolha = entrada.nextInt();
-		Projeto escolhido = projetos.get(escolha);
-		if(escolhido.getStatus().equals("Em Elaboração")) {
-			System.out.println("\nEscolha o colaborador a ser associado:");
-			participantes(pesquisadores);
-			escolha = entrada.nextInt();
-			if (!escolhido.isPesquisadorAdicionado(pesquisadores.get(escolha)) && !pesquisadores.get(escolha).isMaxProjetos()){
-				escolhido.addPesquisador(pesquisadores.get(escolha));
-				pesquisadores.get(escolha).associarProjeto(escolhido);
-				System.out.println("Colaborador associado ao projeto com sucesso!");
+		try{
+			Projeto escolhido = projetos.get(escolha);
+			if(escolhido.getStatus().equals("Em Elaboração")) {
+				System.out.println("\nEscolha o colaborador a ser associado:");
+				participantes(pesquisadores);
+				escolha = entrada.nextInt();
+				if (!escolhido.isPesquisadorAdicionado(pesquisadores.get(escolha)) && !pesquisadores.get(escolha).isMaxProjetos()){
+					escolhido.addPesquisador(pesquisadores.get(escolha));
+					pesquisadores.get(escolha).associarProjeto(escolhido);
+					System.out.println("\nColaborador associado ao projeto com sucesso!");
+				} 
+				else System.out.println("\nPesquisador já faz parte do projeto!");
 			} 
-			else System.out.println("Pesquisador já faz parte do projeto!");
-		} 
-		else System.out.println("Este projeto não pode mais receber colaboradores!");
+			else System.out.println("\nEste projeto não pode mais receber colaboradores!");
+		} catch (IndexOutOfBoundsException e) {
+			System.err.println("\nPosição do array inexistente!");
+		}
 	}
 	
 	public static void alterar(Scanner entrada, ArrayList<Projeto> projetos, ArrayList<Pesquisador> pesquisadores) {
 		System.out.println("\nEscolha o projeto ao qual deseja alterar o status:");
 		projetos(projetos);
 		int escolha = entrada.nextInt();
-		Projeto escolhido = projetos.get(escolha);
-		escolhido.trocarStatus(entrada);
+		try{
+			Projeto escolhido = projetos.get(escolha);
+			escolhido.trocarStatus(entrada);
+		} catch (IndexOutOfBoundsException e) {
+			System.err.println("\nPosição do array inexistente!");
+		}
 	}
 	
 	public static void incluir(Scanner entrada, ArrayList<Projeto> projetos, ArrayList<Pesquisador> pesquisadores) {
@@ -161,20 +181,52 @@ public class Main {
 		projetos(projetos);
 		int escolha = entrada.nextInt();
 		entrada.nextLine();
-		Projeto escolhido = projetos.get(escolha);
-		if (escolhido.getStatus().equals("Em Andamento")) escolhido.incluirPublicacoes(entrada);
-		else System.out.println("Este projeto não pode receber novas publicações no momento!");
+		try{
+			Projeto escolhido = projetos.get(escolha);
+			if (escolhido.getStatus().equals("Em Andamento")) escolhido.incluirPublicacoes(entrada);
+			else System.out.println("\nEste projeto não pode receber novas publicações no momento!");
+		} catch (IndexOutOfBoundsException e) {
+			System.err.println("\nPosição do Array Inexistente!");
+		}
 	}
 	
 	public static void consultaColaborador(Scanner entrada, ArrayList<Pesquisador> colaboradores) {
-		
+		System.out.println("\nEscolha o colaborador ao qual deseja consultar:");
+		participantes(colaboradores);
+		int escolha = entrada.nextInt();
+		entrada.nextLine();
+		try{
+			Pesquisador escolhido = colaboradores.get(escolha);
+			escolhido.colaborador();
+		} catch (IndexOutOfBoundsException e) {
+			System.err.println("\nPosição do Array Inexistente!");
+		}
 	}
 	
 	public static void consultaProjeto(Scanner entrada, ArrayList<Projeto> projetos) {
-		
+		System.out.println("\nEscolha o projeto ao qual deseja consultar:");
+		projetos(projetos);
+		int escolha = entrada.nextInt();
+		entrada.nextLine();
+		try{
+			Projeto escolhido = projetos.get(escolha);
+			escolhido.projeto();
+		} catch (IndexOutOfBoundsException e) {
+			System.err.println("\nPosição do Array Inexistente!");
+		}
 	}
 	
 	public static void relatorio (Scanner entrada, ArrayList<Projeto> projetos, ArrayList<Pesquisador> pesquisadores) {
-		
+		System.out.println("Número de colaboradores cadastrados: " + pesquisadores.size());
+		System.out.println("Total de projetos cadastrados: " + projetos.size());
+		int andamento = 0, elaboracao = 0, concluido = 0;
+		for(Projeto projeto : projetos) {
+			if(projeto.getStatus().equals("Em Andamento")) andamento++;
+			else if(projeto.getStatus().equals("Em Elaboração")) elaboracao++;
+			else concluido++;
+		}
+		System.out.println("	Projetos em elaboração: " + elaboracao);
+		System.out.println("	Projetos em andamento: " + andamento);
+		System.out.println("	Projetos concluídos: " + concluido);
 	}
 }

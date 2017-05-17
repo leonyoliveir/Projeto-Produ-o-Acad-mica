@@ -25,5 +25,15 @@ public class Professor extends Pesquisador {
 	public boolean isMaxProjetos() {
 		return super.isMaxProjetos();
 	}
+
+	@Override
+	public void colaborador() {
+		super.colaborador();
+		System.out.println("Orientações do professor: ");
+		for(String orientacao: orientacoes) {
+			System.out.println("	" + orientacao);
+		}
+	}
+	
 	
 }

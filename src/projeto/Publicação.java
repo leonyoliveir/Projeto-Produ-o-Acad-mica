@@ -54,4 +54,8 @@ public class Publicação {
 	public void addAutor(Pesquisador autor) {
 		this.autores.add(autor);
 	}
+	
+	public boolean isAutorAdicionado(Pesquisador pesquisador) {
+		return this.autores.contains(pesquisador);
+	}
 }
